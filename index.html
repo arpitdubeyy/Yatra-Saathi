@@ -602,6 +602,8 @@
             }
         }
     </style>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>    
 </head>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -1300,78 +1302,101 @@ function resetReportForm() {
     successContainer.classList.remove('show');
     reportFormContainer.style.display = 'block';
 }
-let videoStream;
-let drowsyTimer = null;
-let eyeClosedStart = null;
 
-// Start Camera
-async function startCamera() {
+//---media pipe---//
+let faceMesh;
+
+function detectDrowsiness() {
     const video = document.getElementById("video");
 
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        alert("Camera not supported in this browser");
-        return;
-    }
+    faceMesh = new FaceMesh({
+        locateFile: (file) =>
+            `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
+    });
 
-    try {
-        videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
-        video.srcObject = videoStream;
+    faceMesh.setOptions({
+        maxNumFaces: 1,
+        refineLandmarks: true,
+        minDetectionConfidence: 0.5,
+        minTrackingConfidence: 0.5
+    });
 
-        detectDrowsiness();
-    } catch (err) {
-        console.error(err);
-        alert("Camera access denied or not working!");
-    }
+    faceMesh.onResults(onResults);
+
+    const camera = new Camera(video, {
+        onFrame: async () => {
+            await faceMesh.send({ image: video });
+        },
+        width: 400,
+        height: 300
+    });
+
+    camera.start();
 }
+//---detection---//
+let eyeClosedStart = null;
 
-// Stop Camera
-function stopCamera() {
-    if (videoStream) {
-        videoStream.getTracks().forEach(track => track.stop());
-    }
-
-    clearInterval(drowsyTimer);
-    document.getElementById("statusText").innerText = "Status: Stopped";
-}
-
-// SIMPLE DROWSINESS LOGIC (simulation-based)
-function detectDrowsiness() {
+function onResults(results) {
     const statusText = document.getElementById("statusText");
 
-    drowsyTimer = setInterval(() => {
-        
-        // ⚠️ TEMP LOGIC (since no AI yet)
-        let random = Math.random();
+    if (!results.multiFaceLandmarks) return;
 
-        if (random < 0.1) { // simulate eyes closed
-            if (!eyeClosedStart) {
-                eyeClosedStart = Date.now();
-            }
+    const landmarks = results.multiFaceLandmarks[0];
 
-            let elapsed = (Date.now() - eyeClosedStart) / 1000;
+    const leftEyeTop = landmarks[159];
+    const leftEyeBottom = landmarks[145];
+    const rightEyeTop = landmarks[386];
+    const rightEyeBottom = landmarks[374];
 
-            if (elapsed > 5) {
-                statusText.innerText = "⚠️ DROWSY!";
-                statusText.style.color = "red";
-                playAlarm();
-            } else {
-                statusText.innerText = "Eyes Closed...";
-                statusText.style.color = "orange";
-            }
+    const eyeOpen = Math.abs(leftEyeTop.y - leftEyeBottom.y) +
+                    Math.abs(rightEyeTop.y - rightEyeBottom.y);
 
+    if (eyeOpen < 0.03) {
+        if (!eyeClosedStart) eyeClosedStart = Date.now();
+
+        let time = (Date.now() - eyeClosedStart) / 1000;
+
+        if (time > 3) {
+            statusText.innerText = "⚠️ DROWSY!";
+            statusText.style.color = "red";
+            playAlarm();
         } else {
-            eyeClosedStart = null;
-            statusText.innerText = "Status: Awake";
-            statusText.style.color = "green";
+            statusText.innerText = "Eyes Closing...";
+            statusText.style.color = "orange";
         }
-
-    }, 1000);
+    } else {
+        eyeClosedStart = null;
+        statusText.innerText = "Status: Awake";
+        statusText.style.color = "green";
+    }
 }
 
 // Alarm
 function playAlarm() {
     let audio = new Audio("https://www.soundjay.com/button/beep-07.wav");
     audio.play();
+}
+
+let camera;
+
+function startCamera() {
+    const video = document.getElementById("video");
+
+    camera = new Camera(video, {
+        onFrame: async () => {
+            await faceMesh.send({ image: video });
+        },
+        width: 400,
+        height: 300
+    });
+
+    detectDrowsiness();
+}
+
+function stopCamera() {
+    if (camera) {
+        camera.stop();
+    }
 }
     </script>
 
