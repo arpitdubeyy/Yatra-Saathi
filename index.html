@@ -909,22 +909,24 @@ window.collection = collection;
                 <div class="header-gradient">
                     <h1>Anti-Drowsiness Monitor</h1>
                     <p>Stay alert while driving</p>
-                    <div class="card" style="text-align:center;">
-                        <video id="video" width="400" height="300" autoplay style="border-radius:12px;"></video>
-        
-                        <h2 id="statusText" style="margin-top:15px; color:green;">
-                            Status: Awake
-                        </h2>
+                </div>
 
-                        <button class="btn btn-primary" onclick="startCamera()" style="margin-top:15px;">
-                            Start Monitoring
-                        </button>
+            <div class="card" style="text-align:center;">
+                <video id="video" width="400" height="300" autoplay style="border-radius:12px;"></video>
 
-                        <button class="btn btn-danger" onclick="stopCamera()" style="margin-top:10px;">
-                            Stop
-                        </button>
-                    </div>
+                <h2 id="statusText" style="margin-top:15px; color:green;">
+                    Status: Awake
+                </h2>
+
+                <button class="btn btn-primary" onclick="startCamera()" style="margin-top:15px;">
+                    Start Monitoring
+                </button>
+
+                <button class="btn btn-danger" onclick="stopCamera()" style="margin-top:10px;">
+                    Stop
+                </button>
             </div>
+        </div>
 
         <!-- Report Accident Page -->
         <div id="reportPage" class="page">
