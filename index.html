@@ -907,7 +907,22 @@ window.collection = collection;
                 <div class="header-gradient">
                     <h1>Anti-Drowsiness Monitor</h1>
                     <p>Stay alert while driving</p>
-            </div>
+                    <div class="card" style="text-align:center;">
+                        <video id="video" width="400" height="300" autoplay style="border-radius:12px;"></video>
+        
+                        <h2 id="statusText" style="margin-top:15px; color:green;">
+                            Status: Awake
+                        </h2>
+
+                        <button class="btn btn-primary" onclick="startCamera()" style="margin-top:15px;">
+                            Start Monitoring
+                        </button>
+
+                        <button class="btn btn-danger" onclick="stopCamera()" style="margin-top:10px;">
+                            Stop
+                        </button>
+                    </div>
+                </div>
 
         <!-- Report Accident Page -->
         <div id="reportPage" class="page">
@@ -1005,23 +1020,6 @@ window.collection = collection;
                     </button>
                 </form>
             </div>
-
-            <div class="card" style="text-align:center;">
-                <video id="video" width="400" height="300" autoplay style="border-radius:12px;"></video>
-        
-                <h2 id="statusText" style="margin-top:15px; color:green;">
-                    Status: Awake
-                </h2>
-
-                <button class="btn btn-primary" onclick="startCamera()" style="margin-top:15px;">
-                    Start Monitoring
-                </button>
-
-                <button class="btn btn-danger" onclick="stopCamera()" style="margin-top:10px;">
-                    Stop
-                </button>
-            </div>
-        </div>
 
             <!-- Success Message Container -->
             <div id="successContainer" class="success-container">
@@ -1310,13 +1308,19 @@ let eyeClosedStart = null;
 async function startCamera() {
     const video = document.getElementById("video");
 
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert("Camera not supported in this browser");
+        return;
+    }
+
     try {
         videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
         video.srcObject = videoStream;
 
         detectDrowsiness();
     } catch (err) {
-        alert("Camera access denied!");
+        console.error(err);
+        alert("Camera access denied or not working!");
     }
 }
 
