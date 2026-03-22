@@ -1373,9 +1373,18 @@ function playAlarm() {
 
 
 function startCamera() {
-    if (isRunning) return; // prevent multiple starts
+    if (isRunning) return;
 
     const video = document.getElementById("video");
+    const statusText = document.getElementById("statusText");
+
+    statusText.innerText = "Starting...";
+    statusText.style.color = "orange";
+
+    setTimeout(() => {
+        statusText.innerText = "Status: Awake";
+        statusText.style.color = "green";
+    }, 1000);
 
     faceMesh = new FaceMesh({
         locateFile: (file) =>
