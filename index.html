@@ -1306,8 +1306,6 @@ function resetReportForm() {
 }
 
 //---media pipe---//
-let faceMesh;
-
 function detectDrowsiness() {
     const video = document.getElementById("video");
 
@@ -1324,17 +1322,8 @@ function detectDrowsiness() {
     });
 
     faceMesh.onResults(onResults);
-
-    const camera = new Camera(video, {
-        onFrame: async () => {
-            await faceMesh.send({ image: video });
-        },
-        width: 400,
-        height: 300
-    });
-
-    camera.start();
 }
+
 //---detection---//
 let eyeClosedStart = null;
 
@@ -1384,6 +1373,8 @@ let camera;
 function startCamera() {
     const video = document.getElementById("video");
 
+    detectDrowsiness(); // initialize face mesh first
+
     camera = new Camera(video, {
         onFrame: async () => {
             await faceMesh.send({ image: video });
@@ -1392,13 +1383,27 @@ function startCamera() {
         height: 300
     });
 
-    detectDrowsiness();
+    camera.start();
 }
 
 function stopCamera() {
+    const video = document.getElementById("video");
+
     if (camera) {
         camera.stop();
+        camera = null;
     }
+
+    // Stop webcam stream completely
+    if (video.srcObject) {
+        video.srcObject.getTracks().forEach(track => track.stop());
+        video.srcObject = null;
+    }
+
+    // Reset UI
+    const statusText = document.getElementById("statusText");
+    statusText.innerText = "Stopped";
+    statusText.style.color = "gray";
 }
     </script>
 
