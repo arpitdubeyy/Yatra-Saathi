@@ -1389,20 +1389,6 @@ function stopAlarm() {
 function startCamera() {
     if (isRunning) return;
 
-    eyeClosedStart = null;
-    stopAlarm();
-
-    function unlockAudio() {
-    alarmAudio.play().then(() => {
-        alarmAudio.pause();
-        alarmAudio.currentTime = 0;
-    }).catch(() => {});
-}
-
-// Call this inside startCamera() when button is clicked
-unlockAudio();
-
-
     alarmAudio.play().then(() => {
         alarmAudio.pause();
         alarmAudio.currentTime = 0;
@@ -1447,34 +1433,7 @@ unlockAudio();
     isRunning = true;
 }
 
-function stopCamera() {
-    const video = document.getElementById("video");
 
-    isRunning = false;
-
-    // 🔥 RESET STATE (IMPORTANT)
-    eyeClosedStart = null;
-    stopAlarm();
-
-    if (camera) {
-        camera.stop();
-        camera = null;
-    }
-
-    if (video.srcObject) {
-        video.srcObject.getTracks().forEach(track => track.stop());
-        video.srcObject = null;
-    }
-
-    if (faceMesh) {
-        faceMesh.close();
-        faceMesh = null;
-    }
-
-    const statusText = document.getElementById("statusText");
-    statusText.innerText = "Stopped";
-    statusText.style.color = "gray";
-}
     </script>
 
 </body>
