@@ -1355,11 +1355,11 @@ function onResults(results) {
         let time = (Date.now() - eyeClosedStart) / 1000;
 
         if (time > 3) {
-            statusText.innerText = "⚠️ DROWSY!";
+            statusText.innerText = " Status: Drowsy";
             statusText.style.color = "red";
             playAlarm();
         } else {
-            statusText.innerText = "Eyes Closing...";
+            statusText.innerText = "Status: Eyes Closing";
             statusText.style.color = "orange";
             stopAlarm();
         }
