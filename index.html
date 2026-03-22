@@ -1389,12 +1389,21 @@ function stopAlarm() {
 function startCamera() {
     if (isRunning) return;
 
+    // 🔥 UNLOCK AUDIO (Add this block here)
+    // This plays and immediately pauses the audio to "verify" the user's intent 
+    // so the browser allows it to play later during the alert.
+    alarmAudio.play().then(() => {
+        alarmAudio.pause();
+        alarmAudio.currentTime = 0;
+    }).catch(e => console.log("Audio unlock failed:", e));
+
     const video = document.getElementById("video");
     const statusText = document.getElementById("statusText");
 
     statusText.innerText = "Starting...";
     statusText.style.color = "orange";
 
+    // ... rest of your existing code ...
     setTimeout(() => {
         statusText.innerText = "Status: Awake";
         statusText.style.color = "green";
@@ -1404,6 +1413,8 @@ function startCamera() {
         locateFile: (file) =>
             `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
     });
+    
+    // ... continues with your existing camera setup ...
 
     faceMesh.setOptions({
         maxNumFaces: 1,
