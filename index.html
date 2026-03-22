@@ -1392,6 +1392,16 @@ function startCamera() {
     eyeClosedStart = null;
     stopAlarm();
 
+    function unlockAudio() {
+    alarmAudio.play().then(() => {
+        alarmAudio.pause();
+        alarmAudio.currentTime = 0;
+    }).catch(() => {});
+}
+
+// Call this inside startCamera() when button is clicked
+unlockAudio();
+
 
     alarmAudio.play().then(() => {
         alarmAudio.pause();
