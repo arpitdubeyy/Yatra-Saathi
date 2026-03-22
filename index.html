@@ -1073,6 +1073,9 @@ window.collection = collection;
     // ---------------- GLOBAL STATE ----------------
 let reportCounter = 0;
 let uploadedFiles = [];
+let camera = null;
+let faceMesh = null;
+let isRunning = false;
 
 // ---------------- PAGE NAVIGATION ----------------
 function showPage(pageName, event) {
@@ -1368,36 +1371,61 @@ function playAlarm() {
     audio.play();
 }
 
-let camera;
 
 function startCamera() {
+    if (isRunning) return; // prevent multiple starts
+
     const video = document.getElementById("video");
 
-    detectDrowsiness(); // initialize face mesh first
+    faceMesh = new FaceMesh({
+        locateFile: (file) =>
+            `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
+    });
+
+    faceMesh.setOptions({
+        maxNumFaces: 1,
+        refineLandmarks: true,
+        minDetectionConfidence: 0.5,
+        minTrackingConfidence: 0.5
+    });
+
+    faceMesh.onResults(onResults);
 
     camera = new Camera(video, {
         onFrame: async () => {
-            await faceMesh.send({ image: video });
+            if (faceMesh && isRunning) {
+                await faceMesh.send({ image: video });
+            }
         },
         width: 400,
         height: 300
     });
 
     camera.start();
+    isRunning = true;
 }
 
 function stopCamera() {
     const video = document.getElementById("video");
 
+    isRunning = false;
+
+    // Stop MediaPipe camera
     if (camera) {
         camera.stop();
         camera = null;
     }
 
-    // Stop webcam stream completely
+    // Stop ALL webcam tracks (THIS is the real fix)
     if (video.srcObject) {
         video.srcObject.getTracks().forEach(track => track.stop());
         video.srcObject = null;
+    }
+
+    // Destroy FaceMesh
+    if (faceMesh) {
+        faceMesh.close();
+        faceMesh = null;
     }
 
     // Reset UI
