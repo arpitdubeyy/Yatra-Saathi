@@ -1374,7 +1374,8 @@ function onResults(results) {
 // Alarm
 function playAlarm() {
     if (!isAlarmPlaying) {
-        alarmAudio.play().catch(() => {});
+        alarmAudio.currentTime = 0; // start from beginning
+        alarmAudio.play().catch(e => console.log("Alarm blocked:", e));
         isAlarmPlaying = true;
     }
 }
@@ -1388,28 +1389,16 @@ function stopAlarm() {
 
 function startCamera() {
     if (isRunning) return;
+    isRunning = true;
 
-    eyeClosedStart = null;
-    stopAlarm();
+    const video = document.getElementById("video");
+    const statusText = document.getElementById("statusText");
 
-    function unlockAudio() {
-    alarmAudio.play().then(() => {
-        alarmAudio.pause();
-        alarmAudio.currentTime = 0;
-    }).catch(() => {});
-}
-
-// Call this inside startCamera() when button is clicked
-unlockAudio();
-
-
+    // ✅ Unlock audio here
     alarmAudio.play().then(() => {
         alarmAudio.pause();
         alarmAudio.currentTime = 0;
     }).catch(e => console.log("Audio unlock failed:", e));
-
-    const video = document.getElementById("video");
-    const statusText = document.getElementById("statusText");
 
     statusText.innerText = "Starting...";
     statusText.style.color = "orange";
@@ -1419,32 +1408,15 @@ unlockAudio();
         statusText.style.color = "green";
     }, 1000);
 
-    faceMesh = new FaceMesh({
-        locateFile: (file) =>
-            `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
-    });
-    
-    faceMesh.setOptions({
-        maxNumFaces: 1,
-        refineLandmarks: true,
-        minDetectionConfidence: 0.5,
-        minTrackingConfidence: 0.5
-    });
-
-    faceMesh.onResults(onResults);
-
-    camera = new Camera(video, {
+    const cameraInstance = new Camera(video, {
         onFrame: async () => {
-            if (faceMesh && isRunning) {
-                await faceMesh.send({ image: video });
-            }
+            await faceMesh.send({ image: video });
         },
         width: 400,
         height: 300
     });
-
-    camera.start();
-    isRunning = true;
+    cameraInstance.start();
+    camera = cameraInstance;
 }
 
 function stopCamera() {
