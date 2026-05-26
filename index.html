@@ -651,13 +651,40 @@ window.collection = collection;
     <div class="container">
         <!-- Navigation -->
         <div class="nav-tabs">
-            <button class="nav-tab active" onclick="showPage('project', event)">About Us</button>
-            <button class="nav-tab" onclick="showPage('register', event)">Sign In</button>
-            <button class="nav-tab" onclick="showPage('route', event)">Route Planner</button>
-            <button class="nav-tab" onclick="showPage('report', event)">Report Accident</button>
-            <button class="nav-tab" onclick="showPage('drowsy', event)">Anti-Drowsiness</button>
-        </div>
-            
+
+    <button class="nav-tab active"
+        onclick="showPage('project', event)">
+        About Us
+    </button>
+
+    <button id="registerTab"
+        class="nav-tab"
+        onclick="showPage('register', event)">
+        Sign In
+    </button>
+
+    <button id="routeTab"
+        class="nav-tab"
+        onclick="showPage('route', event)"
+        style="display:none;">
+        Route Planner
+    </button>
+
+    <button id="reportTab"
+        class="nav-tab"
+        onclick="showPage('report', event)"
+        style="display:none;">
+        Report Accident
+    </button>
+
+    <button id="drowsyTab"
+        class="nav-tab"
+        onclick="showPage('drowsy', event)"
+        style="display:none;">
+        Anti-Drowsiness
+    </button>
+
+</div>
 
         <!-- Registration Page -->
         <div id="registerPage" class="page">
@@ -1101,6 +1128,16 @@ function showPage(pageName, event) {
         event.currentTarget.classList.add('active');
     }
 }
+function unlockFeatures() {
+
+    document.getElementById("registerTab").style.display = "none";
+
+    document.getElementById("routeTab").style.display = "block";
+
+    document.getElementById("reportTab").style.display = "block";
+
+    document.getElementById("drowsyTab").style.display = "block";
+}
 
 // ---------------- NAV HELPERS ----------------
 function showLoginFromRegister() {
@@ -1179,6 +1216,7 @@ async function handleRegistration(e) {
             document.getElementById('displayEmail').textContent = email;
             document.getElementById('userInfoDisplay').style.display = 'block';
 
+            unlockFeatures();
             showPage("project");
         }, 1000);
 
@@ -1197,6 +1235,7 @@ function handleLogin(e) {
     signInWithEmailAndPassword(auth, emailVal, passVal)
         .then(() => {
             alert("Login successful!");
+            unlockFeatures();
             showPage("project");
         })
         .catch(err => alert(err.message));
