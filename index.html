@@ -1325,43 +1325,46 @@ async function handleAccidentReport(e) {
     const reportId = 'ACC-' + Date.now().toString().slice(-8);
     try {
 
-    await addDoc(collection(db, "accidentReports"), {
+await addDoc(collection(db, "accidentReports"), {
 
-        reportId: reportId,
+reportId: reportId,
 
-        location: location,
+location: location,
 
-        dateTime: dateTime,
+dateTime: dateTime,
 
-        accidentType: type,
+accidentType: type,
 
-        severity: severity,
+severity: severity,
 
-        vehicleCount: Number(vehicleCount),
+vehicleCount: Number(vehicleCount),
 
-        description: description,
+description: description,
 
-        contactNumber:
-            document.getElementById("contactNumber").value || "",
+contactNumber:
+document.getElementById("contactNumber").value || "",
 
-        photoCount: uploadedFiles.length,
+photoCount: uploadedFiles.length,
 
-        submittedAt: new Date().toISOString()
+submittedAt: new Date().toISOString()
 
-    });
+});
 
-} catch (error) {
-
-    showAlert(
-        "reportAlert",
-        "Failed to save report",
-        "error"
-    );
-
-    console.error(error);
-
-    return;
 }
+catch(error){
+
+console.log(error);
+
+showAlert(
+"reportAlert",
+"Could not save report",
+"error"
+);
+
+return;
+
+}
+   
 
     reportCounter++;
     localStorage.setItem('reportCount', reportCounter);
