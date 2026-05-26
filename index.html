@@ -1307,7 +1307,7 @@ function calculateRoute() {
 }
 
 // ---------------- ACCIDENT REPORT ----------------
-function handleAccidentReport(e) {
+async function handleAccidentReport(e) {
     e.preventDefault();
 
     const location = accidentLocation.value.trim();
@@ -1323,6 +1323,45 @@ function handleAccidentReport(e) {
     }
 
     const reportId = 'ACC-' + Date.now().toString().slice(-8);
+    try {
+
+    await addDoc(collection(db, "accidentReports"), {
+
+        reportId: reportId,
+
+        location: location,
+
+        dateTime: dateTime,
+
+        accidentType: type,
+
+        severity: severity,
+
+        vehicleCount: Number(vehicleCount),
+
+        description: description,
+
+        contactNumber:
+            document.getElementById("contactNumber").value || "",
+
+        photoCount: uploadedFiles.length,
+
+        submittedAt: new Date().toISOString()
+
+    });
+
+} catch (error) {
+
+    showAlert(
+        "reportAlert",
+        "Failed to save report",
+        "error"
+    );
+
+    console.error(error);
+
+    return;
+}
 
     reportCounter++;
     localStorage.setItem('reportCount', reportCounter);
