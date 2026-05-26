@@ -1,2 +1,2 @@
 # Yatra-Saathi
-Yatra Saathi is a program to your journey comfortable.
+Yatra Saathi is a program to make your journey comfortable.
